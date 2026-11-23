@@ -72,3 +72,20 @@ export async function findTickets({ status, category, priority, q, limit, offset
     total: rows[0].total,
   };
 }
+
+export async function findTicketWithEvents(id, db) {
+  const { rows } = await db.query(
+    `SELECT t.*,
+            COALESCE(
+              (SELECT json_agg(e ORDER BY e.created_at DESC, e.id DESC)
+               FROM ticket_events AS e
+               WHERE e.ticket_id = t.id),
+              '[]'::json
+            ) AS events
+     FROM tickets AS t
+     WHERE t.id = $1`,
+    [id]
+  );
+
+  return rows[0] ?? null;
+}

@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { parse } from "../utils/validate.js";
+import { parse, parseId } from "../utils/validate.js";
 import { parsePagination } from "../utils/pagination.js";
-import { importTickets, listTickets } from "../services/ticketService.js";
+import { getTicketDetail, importTickets, listTickets } from "../services/ticketService.js";
 
 const importSchema = z.object({
   tickets: z.array(
@@ -33,4 +33,9 @@ export async function getTickets(req, res) {
   const pagination = parsePagination(req.query, { allowLimit: true });
   const result = await listTickets(filters, pagination);
   res.json(result);
+}
+
+export async function getTicket(req, res) {
+  const id = parseId(req.params.id);
+  res.json(await getTicketDetail(id));
 }
