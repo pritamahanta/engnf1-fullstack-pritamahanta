@@ -62,3 +62,15 @@ export function toStats({ categoryRows, priorityRows, statusRows, reviewedCount,
     modelAgreementRate: reviewed === 0 ? 0 : Math.round((agreed / reviewed) * 1000) / 10,
   };
 }
+
+export function toResource(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    type: row.type,
+    capacity: row.capacity,
+    description: row.description,
+    isActive: row.is_active,
+    createdAt: row.created_at,
+  };
+}
