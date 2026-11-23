@@ -1,7 +1,10 @@
 import pool from "../config/db.js";
 import { classifyTicket } from "../utils/classifier.js";
+import { toTicket } from "../utils/mappers.js";
+import { paginated } from "../utils/pagination.js";
 import {
   countTickets,
+  findTickets,
   insertImportedTicket,
   lockTicketByExternalId,
   updateImportedTicket,
@@ -61,4 +64,9 @@ export async function importTickets(tickets) {
   } finally {
     client.release(discardClient);
   }
+}
+
+export async function listTickets(filters, { page, limit, offset }) {
+  const { rows, total } = await findTickets({ ...filters, limit, offset }, pool);
+  return paginated(rows.map(toTicket), page, limit, total);
 }

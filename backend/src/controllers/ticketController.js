@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { parse } from "../utils/validate.js";
-import { importTickets } from "../services/ticketService.js";
+import { parsePagination } from "../utils/pagination.js";
+import { importTickets, listTickets } from "../services/ticketService.js";
 
 const importSchema = z.object({
   tickets: z.array(
@@ -14,8 +15,22 @@ const importSchema = z.object({
   ),
 });
 
+const ticketFiltersSchema = z.object({
+  status: z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"]).optional(),
+  category: z.enum(["BILLING", "BUG", "FEATURE_REQUEST", "LOGIN", "DELIVERY"]).optional(),
+  priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
+  q: z.string().trim().optional(),
+});
+
 export async function importFeed(req, res) {
   const { tickets } = parse(importSchema, req.body);
   const result = await importTickets(tickets);
+  res.json(result);
+}
+
+export async function getTickets(req, res) {
+  const filters = parse(ticketFiltersSchema, req.query);
+  const pagination = parsePagination(req.query, { allowLimit: true });
+  const result = await listTickets(filters, pagination);
   res.json(result);
 }
