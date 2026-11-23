@@ -1,8 +1,10 @@
 import express from "express";
+import { cors } from "./middlewares/cors.js";
 import { notFoundHandler, errorHandler } from "./middlewares/errorHandler.js";
 
 const app = express();
 
+app.use(cors);
 app.use(express.json());
 
 app.get("/health", (req, res) => {
