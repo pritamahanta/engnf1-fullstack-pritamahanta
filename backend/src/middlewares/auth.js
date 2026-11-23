@@ -1,4 +1,4 @@
-import pool from "../config/db.js";
+import { findUserById } from "../repositories/userRepository.js";
 import { verifyToken } from "../utils/jwt.js";
 import { unauthenticated, forbidden } from "../utils/errors.js";
 
@@ -15,15 +15,12 @@ export async function authenticate(req, res, next) {
     throw unauthenticated("Invalid or expired token");
   }
 
-  const { rows } = await pool.query(
-    "SELECT id, name, email, role, created_at FROM users WHERE id = $1",
-    [payload.sub]
-  );
-  if (rows.length === 0) {
+  const user = await findUserById(payload.sub);
+  if (!user) {
     throw unauthenticated("Invalid or expired token");
   }
 
-  req.user = rows[0];
+  req.user = user;
   next();
 }
 
