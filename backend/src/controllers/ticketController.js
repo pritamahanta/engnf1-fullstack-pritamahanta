@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { parse, parseId } from "../utils/validate.js";
 import { parsePagination } from "../utils/pagination.js";
-import { getTicketDetail, importTickets, listTickets } from "../services/ticketService.js";
+import { getTicketDetail, importTickets, listTickets, updateTicket } from "../services/ticketService.js";
 
 const importSchema = z.object({
   tickets: z.array(
@@ -15,11 +15,22 @@ const importSchema = z.object({
   ),
 });
 
+const status = z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"]);
+const category = z.enum(["BILLING", "BUG", "FEATURE_REQUEST", "LOGIN", "DELIVERY"]);
+const priority = z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]);
+
 const ticketFiltersSchema = z.object({
-  status: z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"]).optional(),
-  category: z.enum(["BILLING", "BUG", "FEATURE_REQUEST", "LOGIN", "DELIVERY"]).optional(),
-  priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
+  status: status.optional(),
+  category: category.optional(),
+  priority: priority.optional(),
   q: z.string().trim().optional(),
+});
+
+const ticketPatchSchema = z.strictObject({
+  status: status.optional(),
+  category: category.optional(),
+  priority: priority.optional(),
+  assigneeId: z.number().int().min(1).max(2147483647).nullable().optional(),
 });
 
 export async function importFeed(req, res) {
@@ -38,4 +49,11 @@ export async function getTickets(req, res) {
 export async function getTicket(req, res) {
   const id = parseId(req.params.id);
   res.json(await getTicketDetail(id));
+}
+
+export async function patchTicket(req, res) {
+  const id = parseId(req.params.id);
+  const actor = req.get("X-Agent")?.trim() || req.user.email;
+  const result = await updateTicket(id, () => parse(ticketPatchSchema, req.body), actor);
+  res.json(result);
 }

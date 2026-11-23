@@ -89,3 +89,51 @@ export async function findTicketWithEvents(id, db) {
 
   return rows[0] ?? null;
 }
+
+export async function lockTicketById(id, db) {
+  const { rows } = await db.query(
+    `SELECT id, category, priority, status, assignee_id, is_human_override, is_reviewed
+     FROM tickets
+     WHERE id = $1
+     FOR UPDATE`,
+    [id]
+  );
+  return rows[0] ?? null;
+}
+
+export async function updateReviewedTicket(ticket, db) {
+  await db.query(
+    `UPDATE tickets
+     SET category = $2,
+         priority = $3,
+         status = $4,
+         assignee_id = $5,
+         is_human_override = $6,
+         is_reviewed = $7,
+         updated_at = now()
+     WHERE id = $1`,
+    [
+      ticket.id,
+      ticket.category,
+      ticket.priority,
+      ticket.status,
+      ticket.assignee_id,
+      ticket.is_human_override,
+      ticket.is_reviewed,
+    ]
+  );
+}
+
+export async function insertTicketEvent(ticketId, { field, oldValue, newValue }, actor, db) {
+  await db.query(
+    `INSERT INTO ticket_events (ticket_id, field, old_value, new_value, actor)
+     VALUES ($1, $2, $3, $4, $5)`,
+    [
+      ticketId,
+      field,
+      oldValue === null ? null : String(oldValue),
+      newValue === null ? null : String(newValue),
+      actor,
+    ]
+  );
+}
