@@ -137,3 +137,40 @@ export async function insertTicketEvent(ticketId, { field, oldValue, newValue },
     ]
   );
 }
+
+export async function readTicketStats(db) {
+  const { rows } = await db.query(
+    `SELECT category,
+            priority,
+            status,
+            count(*) AS count,
+            count(*) FILTER (WHERE is_reviewed) AS reviewed_count,
+            count(*) FILTER (WHERE is_reviewed AND category = auto_category) AS agreed_count
+     FROM tickets
+     GROUP BY GROUPING SETS ((category), (priority), (status), ())`
+  );
+
+  const stats = {
+    categoryRows: [],
+    priorityRows: [],
+    statusRows: [],
+    reviewedCount: 0,
+    agreedCount: 0,
+  };
+
+  for (const row of rows) {
+    const { category, priority, status, count } = row;
+    if (category !== null) {
+      stats.categoryRows.push({ key: category, count });
+    } else if (priority !== null) {
+      stats.priorityRows.push({ key: priority, count });
+    } else if (status !== null) {
+      stats.statusRows.push({ key: status, count });
+    } else {
+      stats.reviewedCount = row.reviewed_count;
+      stats.agreedCount = row.agreed_count;
+    }
+  }
+
+  return stats;
+}

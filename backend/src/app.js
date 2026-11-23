@@ -3,6 +3,7 @@ import { cors } from "./middlewares/cors.js";
 import { notFoundHandler, errorHandler } from "./middlewares/errorHandler.js";
 import authRoutes from "./routes/auth.js";
 import ticketRoutes from "./routes/tickets.js";
+import statsRoutes from "./routes/stats.js";
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.get("/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/tickets", ticketRoutes);
+app.use("/api/stats", statsRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

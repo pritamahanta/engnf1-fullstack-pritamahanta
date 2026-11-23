@@ -1,7 +1,7 @@
 import pool from "../config/db.js";
 import { classifyTicket } from "../utils/classifier.js";
 import { notFound } from "../utils/errors.js";
-import { toTicket, toTicketEvent } from "../utils/mappers.js";
+import { toStats, toTicket, toTicketEvent } from "../utils/mappers.js";
 import { paginated } from "../utils/pagination.js";
 import { findUserById } from "../repositories/userRepository.js";
 import {
@@ -12,6 +12,7 @@ import {
   insertTicketEvent,
   lockTicketByExternalId,
   lockTicketById,
+  readTicketStats,
   updateImportedTicket,
   updateReviewedTicket,
 } from "../repositories/ticketRepository.js";
@@ -132,4 +133,8 @@ async function withTicketTransaction(run) {
   } finally {
     client.release(discardClient);
   }
+}
+
+export async function getTicketStats() {
+  return toStats(await readTicketStats(pool));
 }
