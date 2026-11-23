@@ -59,3 +59,61 @@ export async function findOccupiedSlots(resourceId, from, to) {
   );
   return rows;
 }
+
+export async function findBookingById(id, db = pool) {
+  const { rows } = await db.query("SELECT * FROM bookings WHERE id = $1", [id]);
+  return rows[0] ?? null;
+}
+
+export async function findBookings({ userId, status, resourceId, from, to }, { limit, offset }) {
+  const { rows } = await pool.query(
+    `WITH filtered AS (
+       SELECT *
+       FROM bookings
+       WHERE ($1::integer IS NULL OR user_id = $1)
+         AND ($2::text IS NULL OR status = $2)
+         AND ($3::integer IS NULL OR resource_id = $3)
+         AND ($4::timestamptz IS NULL OR end_time > $4)
+         AND ($5::timestamptz IS NULL OR start_time < $5)
+     ),
+     page_rows AS (
+       SELECT * FROM filtered
+       ORDER BY start_time ASC, id ASC
+       LIMIT $6 OFFSET $7
+     ),
+     totals AS (
+       SELECT count(*)::integer AS total FROM filtered
+     )
+     SELECT page_rows.*, totals.total
+     FROM totals
+     LEFT JOIN page_rows ON true
+     ORDER BY page_rows.start_time ASC, page_rows.id ASC`,
+    [userId ?? null, status ?? null, resourceId ?? null, from ?? null, to ?? null, limit, offset]
+  );
+  return { rows: rows.filter((row) => row.id !== null), total: rows[0].total };
+}
+
+export async function lockResourceForBookingChange(bookingId, db) {
+  const { rowCount } = await db.query(
+    `SELECT r.id
+     FROM resources AS r
+     JOIN bookings AS b ON b.resource_id = r.id
+     WHERE b.id = $1
+     FOR NO KEY UPDATE OF r`,
+    [bookingId]
+  );
+  return rowCount === 1;
+}
+
+export async function updateBookingStatus(id, status, note, allowedStatuses, db) {
+  const { rows } = await db.query(
+    `UPDATE bookings
+     SET status = $2, decision_note = COALESCE($3, decision_note)
+     WHERE id = $1
+       AND start_time > clock_timestamp()
+       AND status = ANY($4::text[])
+     RETURNING *`,
+    [id, status, note, allowedStatuses]
+  );
+  return rows[0] ?? null;
+}

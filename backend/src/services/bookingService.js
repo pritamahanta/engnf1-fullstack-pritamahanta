@@ -1,14 +1,19 @@
 import pool from "../config/db.js";
 import {
   countFutureBookings,
+  findBookingById,
+  findBookings,
   findOccupiedSlots,
   insertBooking,
   lockBookingResource,
   lockBookingTicket,
   lockBookingUser,
+  lockResourceForBookingChange,
+  updateBookingStatus,
 } from "../repositories/bookingRepository.js";
-import { conflict, notFound, unauthenticated, validationError } from "../utils/errors.js";
+import { conflict, forbidden, notFound, unauthenticated, validationError } from "../utils/errors.js";
 import { toBooking } from "../utils/mappers.js";
+import { paginated } from "../utils/pagination.js";
 import { getResource } from "./resourceService.js";
 
 const MINUTE = 60_000;
@@ -61,6 +66,41 @@ export async function createBooking(userId, input) {
     }
     throw error;
   }
+}
+
+export async function listBookings(filters, pagination) {
+  const { from, to } = filters;
+  if (from && to && to <= from) {
+    throw validationError("to must be after from");
+  }
+
+  const { rows, total } = await findBookings(filters, pagination);
+  return paginated(rows.map(toBooking), pagination.page, pagination.limit, total);
+}
+
+export async function getBooking(id, user) {
+  const row = await findBookingById(id);
+  if (!row) throw notFound("Booking not found");
+  if (user.role !== "ADMIN" && row.user_id !== user.id) throw forbidden();
+  return toBooking(row);
+}
+
+export async function changeBookingStatus(id, status, ownerId = null, readNote = () => null) {
+  return withBookingTransaction(async (client) => {
+    // Coordinate status changes with creation on the same resource.
+    if (!(await lockResourceForBookingChange(id, client))) {
+      throw notFound("Booking not found");
+    }
+    const current = await findBookingById(id, client);
+    if (!current) throw notFound("Booking not found");
+
+    if (status === "CANCELLED" && current.user_id !== ownerId) throw forbidden();
+    const note = readNote();
+    const allowedStatuses = status === "CANCELLED" ? ["PENDING", "APPROVED"] : ["PENDING"];
+    const updated = await updateBookingStatus(id, status, note, allowedStatuses, client);
+    if (!updated) throw conflict("A booking can only change from an eligible status before it starts");
+    return toBooking(updated);
+  });
 }
 
 function validateStart(startTime) {
