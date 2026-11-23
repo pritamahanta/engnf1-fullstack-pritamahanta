@@ -74,3 +74,18 @@ export function toResource(row) {
     createdAt: row.created_at,
   };
 }
+
+export function toBooking(row) {
+  return {
+    id: row.id,
+    resourceId: row.resource_id,
+    userId: row.user_id,
+    ticketId: row.ticket_id,
+    startTime: row.start_time,
+    endTime: row.end_time,
+    purpose: row.purpose,
+    status: row.status,
+    decisionNote: row.decision_note,
+    createdAt: row.created_at,
+  };
+}

@@ -5,6 +5,7 @@ import authRoutes from "./routes/auth.js";
 import ticketRoutes from "./routes/tickets.js";
 import statsRoutes from "./routes/stats.js";
 import resourceRoutes from "./routes/resources.js";
+import bookingRoutes from "./routes/bookings.js";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/resources", resourceRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
