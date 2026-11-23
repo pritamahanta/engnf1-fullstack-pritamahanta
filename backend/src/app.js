@@ -1,4 +1,5 @@
 import express from "express";
+import { notFoundHandler, errorHandler } from "./middlewares/errorHandler.js";
 
 const app = express();
 
@@ -7,5 +8,8 @@ app.use(express.json());
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
+
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 export default app;
