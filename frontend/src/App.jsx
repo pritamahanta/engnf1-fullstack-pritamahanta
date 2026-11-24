@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { apiRequest } from "./api.js";
 import { useAuth } from "./auth.jsx";
+import TicketQueue from "./TicketQueue.jsx";
 
 function AuthPage({ registration = false }) {
   const { user, signIn } = useAuth();
@@ -75,7 +76,11 @@ function Shell() {
   return (
     <>
       <header className="app-header">
-        <Link to="/" className="brand">TriageSync</Link>
+        <Link to="/tickets" className="brand">TriageSync</Link>
+        <nav className="app-nav" aria-label="Main navigation">
+          <NavLink to="/tickets">Tickets</NavLink>
+          <NavLink to="/account">Account</NavLink>
+        </nav>
         <div className="session-tools">
           <span>{user.name}</span>
           <button className="secondary" onClick={signOut}>Sign out</button>
@@ -128,7 +133,9 @@ export default function App() {
       <Route path="/register" element={<AuthPage key="register" registration />} />
       <Route element={<RequireAuth />}>
         <Route element={<Shell />}>
-          <Route index element={<Account />} />
+          <Route index element={<Navigate to="/tickets" replace />} />
+          <Route path="tickets" element={<TicketQueue />} />
+          <Route path="account" element={<Account />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
