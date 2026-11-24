@@ -3,6 +3,7 @@ import { Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigat
 import { apiRequest } from "./api.js";
 import { useAuth } from "./auth.jsx";
 import TicketQueue from "./TicketQueue.jsx";
+import { ResourceBrowser, ResourceDetail } from "./Resources.jsx";
 
 function AuthPage({ registration = false }) {
   const { user, signIn } = useAuth();
@@ -79,6 +80,7 @@ function Shell() {
         <Link to="/tickets" className="brand">TriageSync</Link>
         <nav className="app-nav" aria-label="Main navigation">
           <NavLink to="/tickets">Tickets</NavLink>
+          <NavLink to="/resources">Resources</NavLink>
           <NavLink to="/account">Account</NavLink>
         </nav>
         <div className="session-tools">
@@ -135,6 +137,8 @@ export default function App() {
         <Route element={<Shell />}>
           <Route index element={<Navigate to="/tickets" replace />} />
           <Route path="tickets" element={<TicketQueue />} />
+          <Route path="resources" element={<ResourceBrowser />} />
+          <Route path="resources/:id" element={<ResourceDetail />} />
           <Route path="account" element={<Account />} />
         </Route>
       </Route>
