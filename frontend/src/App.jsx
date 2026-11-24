@@ -4,6 +4,7 @@ import { apiRequest } from "./api.js";
 import { useAuth } from "./auth.jsx";
 import TicketQueue from "./TicketQueue.jsx";
 import { ResourceBrowser, ResourceDetail } from "./Resources.jsx";
+import MyBookings from "./MyBookings.jsx";
 
 function AuthPage({ registration = false }) {
   const { user, signIn } = useAuth();
@@ -81,6 +82,7 @@ function Shell() {
         <nav className="app-nav" aria-label="Main navigation">
           <NavLink to="/tickets">Tickets</NavLink>
           <NavLink to="/resources">Resources</NavLink>
+          <NavLink to="/bookings">My Bookings</NavLink>
           <NavLink to="/account">Account</NavLink>
         </nav>
         <div className="session-tools">
@@ -139,6 +141,7 @@ export default function App() {
           <Route path="tickets" element={<TicketQueue />} />
           <Route path="resources" element={<ResourceBrowser />} />
           <Route path="resources/:id" element={<ResourceDetail />} />
+          <Route path="bookings" element={<MyBookings />} />
           <Route path="account" element={<Account />} />
         </Route>
       </Route>

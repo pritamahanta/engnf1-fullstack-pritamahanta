@@ -1,0 +1,21 @@
+.my-bookings { display: grid; gap: 1rem; }
+.my-bookings h1, .my-bookings p { margin: 0; }
+.my-bookings-filter { width: min(100%, 14rem); }
+.my-bookings-filter select {
+  width: 100%;
+  min-width: 0;
+  padding: 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: white;
+  color: inherit;
+  font: inherit;
+}
+.my-booking-list { display: grid; gap: 0.75rem; list-style: none; padding: 0; margin: 0; }
+.my-booking-list:empty { display: none; }
+.my-booking-list li { display: grid; gap: 0.55rem; padding: 1rem; overflow-wrap: anywhere; }
+.my-booking-list li > button { justify-self: start; }
+.my-booking-heading, .my-booking-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.my-booking-heading { justify-content: space-between; }
+.my-booking-heading h2 { margin: 0; font-size: 1.1rem; }
+.my-booking-status { padding: 0.2rem 0.5rem; border-radius: 0.35rem; background: #e7f3ed; color: var(--accent); font-size: 0.8rem; font-weight: 700; }
