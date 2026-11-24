@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import express from "express";
 import { cors } from "./middlewares/cors.js";
 import { notFoundHandler, errorHandler } from "./middlewares/errorHandler.js";
@@ -23,6 +25,17 @@ app.use("/api/stats", statsRoutes);
 app.use("/api/resources", resourceRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/admin", adminRoutes);
+
+const frontendDir = fileURLToPath(new URL("../../frontend/dist/", import.meta.url));
+const frontendIndex = fileURLToPath(new URL("../../frontend/dist/index.html", import.meta.url));
+
+if (existsSync(frontendIndex)) {
+  app.use(express.static(frontendDir));
+  app.get(/^(?!\/(?:api|assets|health)(?:\/|$)).*$/i, (req, res, next) => {
+    if (!req.accepts("html")) return next();
+    res.sendFile(frontendIndex);
+  });
+}
 
 app.use(notFoundHandler);
 app.use(errorHandler);
