@@ -38,7 +38,7 @@ export async function countTickets(db) {
 
 export async function findTickets({ status, category, priority, q, limit, offset }, db) {
   const { rows } = await db.query(
-    `WITH filtered AS (
+    `WITH filtered AS NOT MATERIALIZED (
        SELECT *
        FROM tickets
        WHERE ($1::text IS NULL OR status = $1)
