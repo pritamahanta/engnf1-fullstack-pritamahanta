@@ -1,0 +1,32 @@
+.admin, .admin-content { display: grid; gap: 1rem; min-width: 0; }
+.admin h1, .admin h2, .admin p { margin: 0; }
+.admin h2 { font-size: 1.25rem; }
+.admin h3 { margin: 0 0 0.7rem; font-size: 1.05rem; }
+.admin .ticket-metrics + h3 { margin-top: 1rem; }
+.admin .card { overflow-wrap: anywhere; }
+.admin-row { display: grid; gap: 0.65rem; }
+.admin-row h3 { margin: 0; }
+.admin-fields {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  align-items: end;
+  gap: 0.75rem;
+}
+.admin-fields select, .admin-fields textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #b5c9bf;
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  color: inherit;
+  background: #fff;
+  font: inherit;
+}
+.admin-fields textarea { resize: vertical; }
+.admin-fields > button { justify-self: start; }
+.admin-wide { grid-column: 1 / -1; }
+.admin-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }

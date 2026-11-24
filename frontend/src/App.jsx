@@ -5,6 +5,7 @@ import { useAuth } from "./auth.jsx";
 import TicketQueue from "./TicketQueue.jsx";
 import { ResourceBrowser, ResourceDetail } from "./Resources.jsx";
 import MyBookings from "./MyBookings.jsx";
+import { AdminArea, AdminAnalytics, AdminBookings, AdminResources } from "./Admin.jsx";
 
 function AuthPage({ registration = false }) {
   const { user, signIn } = useAuth();
@@ -83,6 +84,7 @@ function Shell() {
           <NavLink to="/tickets">Tickets</NavLink>
           <NavLink to="/resources">Resources</NavLink>
           <NavLink to="/bookings">My Bookings</NavLink>
+          {user.role === "ADMIN" && <NavLink to="/admin">Admin</NavLink>}
           <NavLink to="/account">Account</NavLink>
         </nav>
         <div className="session-tools">
@@ -142,6 +144,11 @@ export default function App() {
           <Route path="resources" element={<ResourceBrowser />} />
           <Route path="resources/:id" element={<ResourceDetail />} />
           <Route path="bookings" element={<MyBookings />} />
+          <Route path="admin" element={<AdminArea />}>
+            <Route index element={<AdminAnalytics />} />
+            <Route path="resources" element={<AdminResources />} />
+            <Route path="bookings" element={<AdminBookings />} />
+          </Route>
           <Route path="account" element={<Account />} />
         </Route>
       </Route>
